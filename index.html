@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Control e Inspección de Extintores - SST</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1b5e20;
+            --primary-hover: #144618;
+            --secondary-color: #2e7d32;
+            --bg-light: #f8f9fa;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar-custom {
+            background-color: var(--primary-color);
+        }
+
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            background: #ffffff;
+        }
+
+        .header-title {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .table-sst th {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .table-sst td {
+            vertical-align: middle;
+        }
+
+        .signature-pad {
+            border: 2px dashed #9e9e9e;
+            border-radius: 8px;
+            background-color: #fff;
+            touch-action: none;
+            width: 100%;
+            height: 150px;
+        }
+
+        .photo-preview {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .photo-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .btn-remove-photo {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        #reader {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--primary-color);
+        }
+
+        .badge-ok { background-color: #2e7d32; }
+        .badge-warn { background-color: #f57c00; }
+        .badge-danger { background-color: #c62828; }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top shadow-sm">
+        <div class="container-fluid max-w-7xl">
+            <a class="navbar-brand d-flex items-center gap-2 font-bold" href="#">
+                <i class="fa-solid fa-fire-extinguisher fa-lg"></i>
+                <span>SST EXTINTORES - CONTROL E INSPECCIÓN</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto gap-2">
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light btn-sm w-100" onclick="showSection('dashboard')">
+                            <i class="fa-solid fa-chart-pie me-1"></i> Dashboard
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-light text-success btn-sm w-100 fw-bold" onclick="showSection('inspection-form')">
+                            <i class="fa-solid fa-clipboard-check me-1"></i> Nueva Inspección
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light btn-sm w-100" onclick="showSection('history')">
+                            <i class="fa-solid fa-clock-rotate-left me-1"></i> Historial y Evidencias
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-warning text-dark btn-sm w-100 fw-bold" onclick="exportToCSV()">
+                            <i class="fa-solid fa-file-excel me-1"></i> Exportar Excel
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container my-4">
+
+        <!-- SECTION 1: DASHBOARD -->
+        <div id="section-dashboard" class="app-section">
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card card-custom p-3 border-start border-4 border-success">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted fw-bold uppercase">Total Reg.</small>
+                                <h3 class="mb-0 fw-bold text-dark" id="dash-total">0</h3>
+                            </div>
+                            <i class="fa-solid fa-boxes-stacked fa-2x text-success opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card card-custom p-3 border-start border-4 border-primary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted fw-bold uppercase">Operativos (OK)</small>
+                                <h3 class="mb-0 fw-bold text-primary" id="dash-ok">0</h3>
+                            </div>
+                            <i class="fa-solid fa-circle-check fa-2x text-primary opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card card-custom p-3 border-start border-4 border-warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted fw-bold uppercase">Próx. Vencer</small>
+                                <h3 class="mb-0 fw-bold text-warning" id="dash-warn">0</h3>
+                            </div>
+                            <i class="fa-solid fa-triangle-exclamation fa-2x text-warning opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card card-custom p-3 border-start border-4 border-danger">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted fw-bold uppercase">Inoperativos</small>
+                                <h3 class="mb-0 fw-bold text-danger" id="dash-danger">0</h3>
+                            </div>
+                            <i class="fa-solid fa-circle-xmark fa-2x text-danger opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accesos Rápidos -->
+            <div class="card card-custom p-4 text-center">
+                <h4 class="header-title mb-3"><i class="fa-solid fa-qrcode me-2"></i>Escanear Extintor In Situ</h4>
+                <p class="text-muted">Apunta con la cámara del celular al código QR pegado en la etiqueta del extintor para abrir su ficha de inspección.</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <button class="btn btn-success btn-lg px-4" onclick="openQRModal()">
+                        <i class="fa-solid fa-camera me-2"></i> Abrir Escáner de Cámara
+                    </button>
+                    <button class="btn btn-outline-secondary btn-lg" onclick="showSection('inspection-form')">
+                        <i class="fa-solid fa-pen-to-square me-2"></i> Registro Manual
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: FORMULARIO DE INSPECCIÓN DETALLADO -->
+        <div id="section-inspection-form" class="app-section d-none">
+            <form id="form-extinguisher" onsubmit="saveInspection(event)">
+                
+                <!-- Datos de Cabecera del Extintor -->
+                <div class="card card-custom p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                        <h4 class="header-title mb-0"><i class="fa-solid fa-clipboard-list me-2"></i>Datos del Extintor</h4>
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="openQRModal()">
+                            <i class="fa-solid fa-qrcode me-1"></i> Escanear QR
+                        </button>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Código / ID Extintor *</label>
+                            <input type="text" id="ext-id" class="form-control" required placeholder="Ej: EXT-001" onchange="autoFillExtinguisherData()">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Ubicación / Área *</label>
+                            <input type="text" id="ext-location" class="form-control" required placeholder="Ej: Bodega Central - Columna 4">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Tipo de Agente *</label>
+                            <select id="ext-type" class="form-select" required>
+                                <option value="PQS (Polvo Químico Seco)">PQS (Polvo Químico Seco)</option>
+                                <option value="CO2 (Dióxido de Carbono)">CO2 (Dióxido de Carbono)</option>
+                                <option value="Solkaflam / Agente Limpio">Solkaflam / Agente Limpio</option>
+                                <option value="Agua Presurizada">Agua Presurizada</option>
+                                <option value="Tipo K (Cocinas)">Tipo K (Cocinas)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Capacidad *</label>
+                            <input type="text" id="ext-capacity" class="form-control" placeholder="Ej: 10 lbs / 2.5 Gal">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Verificación Estilo Checklist SST -->
+                <div class="card card-custom p-4 mb-4">
+                    <h4 class="header-title border-bottom pb-2 mb-3">
+                        <i class="fa-solid fa-list-check me-2"></i>Verificación del Extintor (Puntos de Control SST)
+                    </h4>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sst">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Elemento a Verificar</th>
+                                    <th style="width: 25%;">Cumple / No Cumple</th>
+                                    <th style="width: 50%;">Observación Individual</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checklist-tbody">
+                                <!-- 10 Puntos de Inspección generados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Dictamen, Geolocalización y Fotos de Evidencia -->
+                <div class="card card-custom p-4 mb-4">
+                    <h4 class="header-title border-bottom pb-2 mb-3">
+                        <i class="fa-solid fa-camera-retro me-2"></i>Evidencias, Ubicación GPS y Dictamen
+                    </h4>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Dictamen / Estado Final *</label>
+                            <select id="ext-status" class="form-select fw-bold text-dark" required>
+                                <option value="OK" class="text-success fw-bold">🟢 CONFORME / OPERATIVO (OK)</option>
+                                <option value="Próximo a Vencer" class="text-warning fw-bold">🟡 REQUIERE RECARGA / MANTENIMIENTO</option>
+                                <option value="Inoperativo" class="text-danger fw-bold">🔴 NO CONFORME / FUERA DE SERVICIO</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Próxima Fecha de Vencimiento *</label>
+                            <input type="date" id="ext-expiry" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Ubicación GPS (Evidencia de Inspección In Situ)</label>
+                            <div class="input-group">
+                                <input type="text" id="ext-gps" class="form-control" readonly placeholder="Lat, Long no registrada">
+                                <button type="button" class="btn btn-outline-success" onclick="getGPSLocation()">
+                                    <i class="fa-solid fa-location-dot"></i> Capturar GPS
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Captura de Fotos de Evidencia -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tomar / Adjuntar Fotos de Evidencia *</label>
+                        <input type="file" id="ext-photo-input" accept="image/*" capture="environment" class="form-control" multiple onchange="handlePhotoUpload(event)">
+                        <small class="text-muted">Puedes tomar directamente la foto con la cámara del celular o seleccionar varias imágenes guardadas.</small>
+                        
+                        <div id="photo-preview-container" class="d-flex flex-wrap gap-2 mt-3">
+                            <!-- Previsualizador de fotos -->
+                        </div>
+                    </div>
+
+                    <!-- Inspector y Firma Digital -->
+                    <div class="row g-3 pt-3 border-top">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nombre del Inspector / Auditor SST *</label>
+                            <input type="text" id="ext-inspector" class="form-control" required placeholder="Ej. Ing. Carlos Mendoza - Reg. SST 4501">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label fw-bold mb-0">Firma Digital del Inspector</label>
+                                <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="clearSignature()">Limpiar Firma</button>
+                            </div>
+                            <canvas id="signature-pad" class="signature-pad"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-end gap-2 mb-5">
+                    <button type="button" class="btn btn-secondary px-4" onclick="showSection('dashboard')">Cancelar</button>
+                    <button type="submit" class="btn btn-success btn-lg px-5">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Guardar Inspección
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- SECTION 3: HISTORIAL DE INSPECCIONES Y EVIDENCIAS -->
+        <div id="section-history" class="app-section d-none">
+            <div class="card card-custom p-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                    <h4 class="header-title mb-0"><i class="fa-solid fa-boxes-packing me-2"></i>Historial de Registros y Evidencias Fotográficas</h4>
+                    <button class="btn btn-warning text-dark font-bold btn-sm" onclick="exportToCSV()">
+                        <i class="fa-solid fa-file-csv me-1"></i> Descargar Excel / CSV
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Fecha / Hora</th>
+                                <th>Código ID</th>
+                                <th>Ubicación</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Inspector</th>
+                                <th>Evidencias</th>
+                                <th class="text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody">
+                            <!-- Generado dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL LECTOR QR CÁMARA REAL -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fa-solid fa-camera me-2"></i>Escanear Código QR del Extintor</h5>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeQRModal()"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="reader"></div>
+                    <p class="text-muted mt-2 small">Apunta con la cámara al código QR pegado en el extintor.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeQRModal()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE / FOTOS DE EVIDENCIA -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="modal-detail-title">Detalle de Inspección</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modal-detail-body">
+                    <!-- Detalle cargado por JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ÍTEMS DE LA LISTA DE CHEQUEO
+        const checklistItems = [
+            "1. Pintura y Estado del Cilindro",
+            "2. Sello / Precinto de Seguridad",
+            "3. Anillo de Verificación",
+            "4. Manómetro / Presión",
+            "5. Manguera y Boquilla",
+            "6. Carga / Vencimiento",
+            "7. Tarjeta de Inspección / Etiqueta",
+            "8. Señalización y Visibilidad",
+            "9. Altura de Instalación",
+            "10. Acceso Libre / Despejado"
+        ];
+
+        // DATOS INICIALES PRECARGADOS (44 EXTINTORES)
+        const initialExtinguishers = Array.from({ length: 44 }, (_, i) => {
+            const num = (i + 1).toString().padStart(3, '0');
+            const types = ['PQS (Polvo Químico Seco)', 'CO2 (Dióxido de Carbono)', 'Solkaflam / Agente Limpio', 'Agua Presurizada'];
+            const areas = ['Planta Almacén A', 'Zona de Producción', 'Oficinas Administrativas', 'Taller de Mantenimiento', 'Cuarto Eléctrico'];
+            
+            let status = "OK";
+            if (i === 4 || i === 15 || i === 28) status = "Próximo a Vencer";
+            if (i === 9 || i === 22 || i === 35) status = "Inoperativo";
+
+            return {
+                id: `EXT-${num}`,
+                location: `${areas[i % areas.length]} - Punto ${i + 1}`,
+                type: types[i % types.length],
+                capacity: "10 lbs",
+                status: status,
+                expiryDate: status === 'Inoperativo' ? '2026-01-10' : '2027-02-15',
+                lastInspection: "2026-02-10",
+                inspector: "Ing. Carlos Mendoza",
+                gps: "4.8145, -73.9820",
+                checklist: checklistItems.reduce((acc, curr) => {
+                    acc[curr] = { result: status === 'Inoperativo' && curr.includes('Manómetro') ? 'No Cumple' : 'Cumple', obs: 'En estado normal' };
+                    return acc;
+                }, {}),
+                photos: [],
+                signature: null
+            };
+        });
+
+        let inspections = [];
+        let currentPhotos = [];
+        let html5QrCode = null;
+        let canvas, ctx, isDrawing = false;
+
+        // INICIALIZACIÓN
+        window.onload = function() {
+            loadStorage();
+            renderChecklistTable();
+            updateDashboard();
+            renderHistory();
+            initSignaturePad();
+        };
+
+        // Cargar Datos
+        function loadStorage() {
+            const data = localStorage.getItem('sst_extinguisher_data');
+            if (data) {
+                inspections = JSON.parse(data);
+            } else {
+                inspections = [...initialExtinguishers];
+                saveStorage();
+            }
+        }
+
+        function saveStorage() {
+            localStorage.setItem('sst_extinguisher_data', JSON.stringify(inspections));
+        }
+
+        // Navegación entre Secciones
+        function showSection(sectionId) {
+            document.querySelectorAll('.app-section').forEach(el => el.classList.add('d-none'));
+            document.getElementById(`section-${sectionId}`).classList.remove('d-none');
+            if (sectionId === 'history') renderHistory();
+            if (sectionId === 'dashboard') updateDashboard();
+        }
+
+        // Renderizar Tabla de Checklist SST (10 Puntos)
+        function renderChecklistTable() {
+            const tbody = document.getElementById('checklist-tbody');
+            tbody.innerHTML = '';
+
+            checklistItems.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="fw-bold text-dark">${item}</td>
+                    <td>
+                        <select class="form-select form-select-sm check-result" data-item="${item}">
+                            <option value="Cumple" selected>Cumple</option>
+                            <option value="No Cumple">No Cumple</option>
+                            <option value="N/A">N/A</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm check-obs" data-item="${item}" placeholder="Observación detallada de este punto...">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Autocompletar datos si el código ya existe
+        function autoFillExtinguisherData() {
+            const code = document.getElementById('ext-id').value.trim().toUpperCase();
+            const existing = inspections.find(e => e.id === code);
+            if (existing) {
+                document.getElementById('ext-location').value = existing.location;
+                document.getElementById('ext-type').value = existing.type;
+                document.getElementById('ext-capacity').value = existing.capacity || '10 lbs';
+                document.getElementById('ext-status').value = existing.status;
+                document.getElementById('ext-expiry').value = existing.expiryDate;
+            }
+        }
+
+        // Manejo de Fotos (Cámara / Archivo)
+        function handlePhotoUpload(event) {
+            const files = event.target.files;
+            if (!files) return;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhotos.push(e.target.result);
+                    renderPhotoPreviews();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderPhotoPreviews() {
+            const container = document.getElementById('photo-preview-container');
+            container.innerHTML = '';
+            currentPhotos.forEach((src, idx) => {
+                const div = document.createElement('div');
+                div.className = 'photo-container';
+                div.innerHTML = `
+                    <img src="${src}" class="photo-preview">
+                    <button type="button" class="btn-remove-photo" onclick="removePhoto(${idx})">&times;</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function removePhoto(index) {
+            currentPhotos.splice(index, 1);
+            renderPhotoPreviews();
+        }
+
+        // Capturar GPS
+        function getGPSLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const lat = position.coords.latitude.toFixed(5);
+                        const lng = position.coords.longitude.toFixed(5);
+                        document.getElementById('ext-gps').value = `${lat}, ${lng}`;
+                    },
+                    () => alert("No se pudo obtener la geolocalización. Asegúrate de otorgar permisos de GPS.")
+                );
+            } else {
+                alert("Geolocalización no soportada en este navegador.");
+            }
+        }
+
+        // Firma Digital
+        function initSignaturePad() {
+            canvas = document.getElementById('signature-pad');
+            ctx = canvas.getContext('2d');
+            
+            function resizeCanvas() {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = 150;
+                ctx.strokeStyle = '#1b5e20';
+                ctx.lineWidth = 2;
+            }
+            resizeCanvas();
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
+
+            canvas.addEventListener('mousedown', (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+            canvas.addEventListener('mousemove', (e) => { if (isDrawing) { const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } });
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+
+            canvas.addEventListener('touchstart', (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); });
+            canvas.addEventListener('touchmove', (e) => { if (isDrawing) { const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } e.preventDefault(); });
+            canvas.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Guardar Inspección
+        function saveInspection(e) {
+            e.preventDefault();
+
+            const extId = document.getElementById('ext-id').value.trim().toUpperCase();
+            const location = document.getElementById('ext-location').value.trim();
+            const type = document.getElementById('ext-type').value;
+            const capacity = document.getElementById('ext-capacity').value;
+            const status = document.getElementById('ext-status').value;
+            const expiry = document.getElementById('ext-expiry').value;
+            const gps = document.getElementById('ext-gps').value;
+            const inspector = document.getElementById('ext-inspector').value;
+
+            // Recopilar Checklist
+            const checklistData = {};
+            const results = document.querySelectorAll('.check-result');
+            const obss = document.querySelectorAll('.check-obs');
+
+            results.forEach((resEl, i) => {
+                const itemKey = resEl.getAttribute('data-item');
+                checklistData[itemKey] = {
+                    result: resEl.value,
+                    obs: obss[i].value || 'Sin observaciones'
+                };
+            });
+
+            const newRecord = {
+                id: extId,
+                location: location,
+                type: type,
+                capacity: capacity,
+                status: status,
+                expiryDate: expiry,
+                lastInspection: new Date().toISOString().split('T')[0],
+                inspector: inspector,
+                gps: gps,
+                checklist: checklistData,
+                photos: [...currentPhotos],
+                signature: canvas.toDataURL()
+            };
+
+            // Reemplazar o agregar
+            const index = inspections.findIndex(i => i.id === extId);
+            if (index >= 0) {
+                inspections[index] = newRecord;
+            } else {
+                inspections.unshift(newRecord);
+            }
+
+            saveStorage();
+            alert(`Inspección guardada exitosamente para ${extId}`);
+            
+            // Limpiar formulario y volver al dashboard
+            document.getElementById('form-extinguisher').reset();
+            currentPhotos = [];
+            renderPhotoPreviews();
+            clearSignature();
+            showSection('dashboard');
+        }
+
+        // Escáner QR Real
+        function openQRModal() {
+            const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+            modal.show();
+
+            setTimeout(() => {
+                html5QrCode = new Html5Qrcode("reader");
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: 250 },
+                    (decodedText) => {
+                        document.getElementById('ext-id').value = decodedText;
+                        autoFillExtinguisherData();
+                        closeQRModal();
+                        showSection('inspection-form');
+                    },
+                    (errorMessage) => { /* Escaneando... */ }
+                ).catch(err => console.log("Error de cámara: ", err));
+            }, 300);
+        }
+
+        function closeQRModal() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    const modalEl = document.getElementById('qrModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }).catch(err => console.log(err));
+            }
+        }
+
+        // Dashboard Metricas
+        function updateDashboard() {
+            document.getElementById('dash-total').innerText = inspections.length;
+            document.getElementById('dash-ok').innerText = inspections.filter(i => i.status === 'OK').length;
+            document.getElementById('dash-warn').innerText = inspections.filter(i => i.status === 'Próximo a Vencer').length;
+            document.getElementById('dash-danger').innerText = inspections.filter(i => i.status === 'Inoperativo').length;
+        }
+
+        // Render Historial
+        function renderHistory() {
+            const tbody = document.getElementById('history-tbody');
+            tbody.innerHTML = '';
+
+            inspections.forEach(item => {
+                let badgeClass = item.status === 'OK' ? 'badge-ok' : item.status === 'Próximo a Vencer' ? 'badge-warn' : 'badge-danger';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.lastInspection}</td>
+                    <td class="fw-bold text-success">${item.id}</td>
+                    <td>${item.location}</td>
+                    <td>${item.type}</td>
+                    <td><span class="badge ${badgeClass}">${item.status}</span></td>
+                    <td>${item.inspector}</td>
+                    <td><span class="badge bg-secondary">${(item.photos || []).length} Fotos</span></td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetail('${item.id}')">
+                            <i class="fa-solid fa-eye"></i> Ver Detalle
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Ver Detalle
+        function viewDetail(id) {
+            const item = inspections.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('modal-detail-title').innerText = `Detalle de Inspección: ${item.id}`;
+            
+            let checklistHtml = '<ul class="list-group list-group-flush mb-3">';
+            for (const [key, val] of Object.entries(item.checklist || {})) {
+                const color = val.result === 'Cumple' ? 'text-success' : val.result === 'No Cumple' ? 'text-danger' : 'text-muted';
+                checklistHtml += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${key}</strong>
+                            <br><small class="text-muted">Obs: ${val.obs}</small>
+                        </div>
+                        <span class="fw-bold ${color}">${val.result}</span>
+                    </li>
+                `;
+            }
+            checklistHtml += '</ul>';
+
+            let photosHtml = '<div class="d-flex flex-wrap gap-2 mb-3">';
+            (item.photos || []).forEach(p => {
+                photosHtml += `<img src="${p}" style="width:120px; height:120px; object-fit:cover; border-radius:8px; border:1px solid #ccc;">`;
+            });
+            photosHtml += '</div>';
+
+            document.getElementById('modal-detail-body').innerHTML = `
+                <div class="row mb-3">
+                    <div class="col-6"><strong>Ubicación:</strong> ${item.location}</div>
+                    <div class="col-6"><strong>Estado:</strong> ${item.status}</div>
+                    <div class="col-6"><strong>Próx. Vencimiento:</strong> ${item.expiryDate}</div>
+                    <div class="col-6"><strong>GPS:</strong> ${item.gps || 'N/A'}</div>
+                </div>
+                <h6>Lista de Chequeo:</h6>
+                ${checklistHtml}
+                <h6>Evidencias Fotográficas:</h6>
+                ${photosHtml}
+                ${item.signature ? `<h6>Firma del Inspector:</h6><img src="${item.signature}" style="max-height:80px; border:1px solid #ccc; padding:4px;">` : ''}
+            `;
+
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
+        }
+
+        // Exportar a Excel (CSV)
+        function exportToCSV() {
+            let csv = "\uFEFF"; // BOM UTF-8
+            csv += "ID Extintor,Ubicacion,Tipo,Capacidad,Estado,Fecha Inspeccion,Vencimiento,GPS,Inspector\n";
+
+            inspections.forEach(i => {
+                csv += `"${i.id}","${i.location}","${i.type}","${i.capacity}","${i.status}","${i.lastInspection}","${i.expiryDate}","${i.gps || ''}","${i.inspector}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `Reporte_Inspeccion_Extintores_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
