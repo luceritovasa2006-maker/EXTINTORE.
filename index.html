@@ -810,10 +810,16 @@
         }
 
         function exportToCSV() {
+            // Recargar siempre los datos más recientes desde el almacenamiento local
+            const savedData = localStorage.getItem('sst_extinguisher_data');
+            const currentInspections = savedData ? JSON.parse(savedData) : inspections;
+
             let csv = "\uFEFFID Extintor,Ubicacion,Tipo Agente,Subtipo,Capacidad,Altura,Ano Registro,Mes Registro,Fecha Registro,Mes Vencimiento,Ano Vencimiento,Estado,Fecha Inspeccion,Inspector\n";
-            inspections.forEach(i => {
-                csv += `"${i.id}","${i.location}","${i.type}","${i.sub}","${i.capacity}","${i.height}","${i.anoReg || '2026'}","${i.mesReg || 'AGOSTO'}","${i.fechaReg || ''}","${i.mes}","${i.ano}","${i.status}","${i.lastInspection}","${i.inspector}"\n`;
+            
+            currentInspections.forEach(i => {
+                csv += `"${i.id || ''}","${i.location || ''}","${i.type || ''}","${i.sub || ''}","${i.capacity || ''}","${i.height || ''}","${i.anoReg || '2026'}","${i.mesReg || 'AGOSTO'}","${i.fechaReg || ''}","${i.mes || ''}","${i.ano || ''}","${i.status || ''}","${i.lastInspection || ''}","${i.inspector || ''}"\n`;
             });
+
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
