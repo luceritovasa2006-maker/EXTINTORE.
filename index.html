@@ -12,6 +12,8 @@
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <!-- Librería Especializada de Firma Digital -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <!-- Librería para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --primary-color: #1b5e20;
@@ -768,8 +770,11 @@
                     <td>${item.inspector}</td>
                     <td><span class="badge bg-secondary">${(item.photos || []).length} Fotos</span></td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetail('${item.id}')">
-                            <i class="fa-solid fa-eye"></i> Detalle
+                        <button class="btn btn-sm btn-outline-primary mb-1" onclick="viewDetail('${item.id}')">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </button>
+                        <button class="btn btn-sm btn-danger mb-1" onclick="downloadPDF('${item.id}')">
+                            <i class="fa-solid fa-file-pdf"></i> PDF
                         </button>
                     </td>
                 `;
@@ -809,8 +814,109 @@
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
 
+        function downloadPDF(id) {
+            const savedData = localStorage.getItem('sst_extinguisher_data');
+            const currentInspections = savedData ? JSON.parse(savedData) : inspections;
+            const item = currentInspections.find(i => i.id === id);
+            if (!item) return;
+
+            const element = document.createElement('div');
+            element.style.padding = '20px';
+            element.style.fontFamily = 'Arial, sans-serif';
+            element.style.color = '#333';
+            element.style.background = '#ffffff';
+
+            let checklistHtml = '';
+            for (const [key, val] of Object.entries(item.checklist || {})) {
+                const resText = val.result || 'Cumple';
+                const obsText = val.obs || 'Sin observaciones';
+                const color = resText === 'Cumple' ? 'color: #198754;' : 'color: #dc3545;';
+                checklistHtml += `
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 6px; font-size: 11px;">${key}</td>
+                        <td style="border: 1px solid #ddd; padding: 6px; font-size: 11px; text-align: center; font-weight: bold; ${color}">${resText}</td>
+                        <td style="border: 1px solid #ddd; padding: 6px; font-size: 11px;">${obsText}</td>
+                    </tr>
+                `;
+            }
+
+            let photosHtml = '';
+            if (item.photos && item.photos.length > 0) {
+                photosHtml = '<div style="margin-top: 15px;"><strong>Evidencias Fotográficas:</strong><br><div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">';
+                item.photos.forEach(p => {
+                    photosHtml += `<img src="${p}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">`;
+                });
+                photosHtml += '</div></div>';
+            }
+
+            element.innerHTML = `
+                <div style="border-bottom: 2px solid #1b5e20; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="color: #1b5e20; margin: 0; font-size: 18px;">ACTA DE INSPECCIÓN DE EXTINTOR</h2>
+                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #666;">Sistema de Gestión de Seguridad y Salud en el Trabajo (SST)</p>
+                    </div>
+                    <div style="text-align: right; font-size: 12px;">
+                        <strong>ID:</strong> ${item.id}<br>
+                        <strong>Fecha:</strong> ${item.lastInspection}
+                    </div>
+                </div>
+
+                <table style="width: 100%; font-size: 12px; margin-bottom: 15px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 4px; width: 50%;"><strong>Ubicación:</strong> ${item.location}</td>
+                        <td style="padding: 4px; width: 50%;"><strong>Estado Final:</strong> ${item.status}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px;"><strong>Tipo de Agente:</strong> ${item.type} - ${item.sub}</td>
+                        <td style="padding: 4px;"><strong>Capacidad / Altura:</strong> ${item.capacity} | ${item.height}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px;"><strong>Registro:</strong> ${item.fechaReg || item.mesReg || ''} (${item.anoReg || ''})</td>
+                        <td style="padding: 4px;"><strong>Vencimiento:</strong> ${item.mes} de ${item.ano}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px;" colspan="2"><strong>Inspector:</strong> ${item.inspector}</td>
+                    </tr>
+                </table>
+
+                <h3 style="font-size: 14px; color: #1b5e20; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Lista de Verificación (12 Puntos)</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                    <thead>
+                        <tr style="background-color: #1b5e20; color: white;">
+                            <th style="padding: 6px; font-size: 11px; text-align: left;">Elemento</th>
+                            <th style="padding: 6px; font-size: 11px; text-align: center;">Resultado</th>
+                            <th style="padding: 6px; font-size: 11px; text-align: left;">Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${checklistHtml}
+                    </tbody>
+                </table>
+
+                ${photosHtml}
+
+                <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        ${item.signature ? `<strong>Firma del Inspector:</strong><br><img src="${item.signature}" style="max-height: 60px; border: 1px solid #ccc; padding: 4px; margin-top: 5px;">` : ''}
+                    </div>
+                    <div style="font-size: 10px; color: #888; text-align: right;">
+                        Reporte generado automáticamente por la App SST Finca Torremolinos
+                    </div>
+                </div>
+            `;
+
+            const options = {
+                margin:       10,
+                filename:     `Inspeccion_${item.id}_${item.lastInspection}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(options).save();
+        }
+
         function exportToCSV() {
-            // Recargar siempre los datos más recientes desde el almacenamiento local
             const savedData = localStorage.getItem('sst_extinguisher_data');
             const currentInspections = savedData ? JSON.parse(savedData) : inspections;
 
