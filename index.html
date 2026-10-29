@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <!-- QR Code Scanner Library -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Librería Especializada de Firma Digital -->
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <style>
         :root {
             --primary-color: #1b5e20;
@@ -63,8 +65,8 @@
         canvas.signature-pad {
             width: 100%;
             height: 100%;
-            cursor: crosshair;
             display: block;
+            border-radius: 6px;
         }
 
         .photo-preview {
@@ -314,13 +316,12 @@
                     </div>
                 </div>
 
-                <!-- Dictamen, Fotos y Firma - ORGANIZADOS UNO DEBAJO DE OTRO -->
+                <!-- Dictamen, Fotos y Firma ORGANIZADOS EN BLOQUE -->
                 <div class="card card-custom p-4 mb-4">
                     <h4 class="header-title border-bottom pb-2 mb-3">
                         <i class="fa-solid fa-camera-retro me-2"></i>Dictamen, Evidencias y Firma
                     </h4>
 
-                    <!-- 1. Dictamen / Estado Final -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Dictamen / Estado Final *</label>
                         <select id="ext-status" class="form-select fw-bold text-dark" required>
@@ -330,13 +331,11 @@
                         </select>
                     </div>
 
-                    <!-- 2. Fecha Límite / Próxima Revisión -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Fecha Límite / Próxima Revisión *</label>
                         <input type="date" id="ext-expiry" class="form-control" required>
                     </div>
 
-                    <!-- 3. Tomar / Adjuntar Fotos de Evidencia -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Tomar / Adjuntar Fotos de Evidencia *</label>
                         <input type="file" id="ext-photo-input" accept="image/*" capture="environment" class="form-control" multiple onchange="handlePhotoUpload(event)">
@@ -344,13 +343,12 @@
                         <div id="photo-preview-container" class="d-flex flex-wrap gap-2 mt-3"></div>
                     </div>
 
-                    <!-- 4. Nombre del Inspector -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nombre del Inspector / Auditor SST *</label>
                         <input type="text" id="ext-inspector" class="form-control" required placeholder="Ej. Ing. Carlos Mendoza">
                     </div>
 
-                    <!-- 5. Firma Digital -->
+                    <!-- FIRMA DIGITAL CON LIBRERÍA DEDICADA -->
                     <div class="mb-3 pt-2 border-top">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="form-label fw-bold mb-0">Firma Digital del Inspector</label>
@@ -443,18 +441,9 @@
 
     <script>
         const checklistItems = [
-            "PINTURA",
-            "SELLO DE SEGURIDAD",
-            "ANILLO DE VERIFICACION",
-            "MANOMETRO",
-            "VALVULA",
-            "MANGUERA",
-            "BOQUILLA",
-            "PASADOR / PIN SEGURIDAD",
-            "SOPORTE",
-            "MANIJA",
-            "CILINDRO",
-            "SEÑALIZACION Y DEMARCACION"
+            "PINTURA", "SELLO DE SEGURIDAD", "ANILLO DE VERIFICACION", "MANOMETRO",
+            "VALVULA", "MANGUERA", "BOQUILLA", "PASADOR / PIN SEGURIDAD",
+            "SOPORTE", "MANIJA", "CILINDRO", "SEÑALIZACION Y DEMARCACION"
         ];
 
         const masterExtinguishers = [
@@ -508,7 +497,7 @@
         let inspections = [];
         let currentPhotos = [];
         let html5QrCode = null;
-        let canvas, ctx, isDrawing = false;
+        let signaturePad = null;
 
         window.onload = function() {
             populateExtinguisherDropdown();
@@ -556,6 +545,9 @@
             document.getElementById(`section-${sectionId}`).classList.remove('d-none');
             if (sectionId === 'history') renderHistory();
             if (sectionId === 'dashboard') updateDashboard();
+            if (sectionId === 'inspection-form') {
+                setTimeout(resizeCanvas, 200);
+            }
         }
 
         function renderChecklistTable() {
@@ -647,74 +639,31 @@
             renderPhotoPreviews();
         }
 
-        // FIRMA DIGITAL CONFIGURADA PARA RESPONDER AL TACTO DE INMEDIATO
+        // INICIALIZACIÓN DE FIRMA DIGITAL CON LIBRERÍA ESPECIALIZADA
         function initSignaturePad() {
-            canvas = document.getElementById('signature-pad');
-            ctx = canvas.getContext('2d');
-            
-            function setupCanvasSize() {
-                // Forzar dimensiones reales del contenedor para que el lápiz pinte bien
-                const rect = canvas.parentElement.getBoundingClientRect();
-                canvas.width = rect.width || 300;
-                canvas.height = 180;
-                ctx.strokeStyle = '#1b5e20';
-                ctx.lineWidth = 3;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-            }
-            
-            // Inicializar al cargar y al cambiar de sección
-            setTimeout(setupCanvasSize, 300);
+            const canvas = document.getElementById('signature-pad');
+            signaturePad = new SignaturePad(canvas, {
+                penColor: '#1b5e20',
+                minWidth: 1.5,
+                maxWidth: 3.5
+            });
 
-            function getPos(e) {
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return {
-                    x: clientX - rect.left,
-                    y: clientY - rect.top
-                };
-            }
-
-            // Eventos Mouse (Computador)
-            canvas.onmousedown = (e) => {
-                isDrawing = true;
-                const p = getPos(e);
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-            };
-
-            canvas.onmousemove = (e) => {
-                if (!isDrawing) return;
-                const p = getPos(e);
-                ctx.lineTo(p.x, p.y);
-                ctx.stroke();
-            };
-
-            canvas.onmouseup = () => isDrawing = false;
-            canvas.onmouseleave = () => isDrawing = false;
-
-            // Eventos Táctiles (Celular - Con pasivo en falso para que pinte de una)
-            canvas.addEventListener('touchstart', (e) => {
-                isDrawing = true;
-                const p = getPos(e);
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                e.preventDefault();
-            }, { passive: false });
-
-            canvas.addEventListener('touchmove', (e) => {
-                if (!isDrawing) return;
-                const p = getPos(e);
-                ctx.lineTo(p.x, p.y);
-                ctx.stroke();
-                e.preventDefault();
-            }, { passive: false });
-
-            canvas.addEventListener('touchend', () => isDrawing = false);
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
         }
+
+        function resizeCanvas() {
+            const canvas = document.getElementById('signature-pad');
+            if (!canvas) return;
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            if (signaturePad) signaturePad.clear();
+        }
+
         function clearSignature() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (signaturePad) signaturePad.clear();
         }
 
         function saveInspection(e) {
@@ -746,7 +695,8 @@
             const newRecord = {
                 id: extId, location, type, sub, capacity, height, anoReg, mesReg, fechaReg, mes, ano, status, expiryDate: expiry,
                 lastInspection: new Date().toISOString().split('T')[0], inspector,
-                checklist: checklistData, photos: [...currentPhotos], signature: canvas.toDataURL()
+                checklist: checklistData, photos: [...currentPhotos], 
+                signature: signaturePad && !signaturePad.isEmpty() ? signaturePad.toDataURL() : null
             };
 
             const index = inspections.findIndex(i => i.id === extId);
