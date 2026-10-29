@@ -3,159 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Etiquetas QR con URL - Extintores</title>
+    <title>Generador de Etiquetas QR - Extintores SST</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-        h1 {
-            text-align: center;
-            color: #1b5e20;
-            margin-bottom: 5px;
-        }
-        p.subtitle {
-            text-align: center;
-            color: #555;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-        .no-print {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .btn-print {
-            background-color: #1b5e20;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .btn-print:hover {
-            background-color: #2e7d32;
-        }
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 15px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .etiqueta {
-            background: white;
-            border: 2px dashed #1b5e20;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            page-break-inside: avoid;
-        }
-        .etiqueta h3 {
-            margin: 0 0 5px 0;
-            color: #1b5e20;
-            font-size: 18px;
-        }
-        .etiqueta .ubicacion {
-            font-weight: bold;
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 10px;
-            min-height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .etiqueta img {
-            width: 140px;
-            height: 140px;
-            margin: 5px 0;
-        }
-        .etiqueta .tipo {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-        @media print {
-            .no-print {
-                display: none;
-            }
-            body {
-                background: white;
-                padding: 0;
-            }
-            .grid-container {
-                gap: 10px;
-            }
-            .etiqueta {
-                border: 1px solid #999;
-                box-shadow: none;
-            }
-        }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
+        h1 { text-align: center; color: #1b5e20; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #555; margin-top: 0; margin-bottom: 20px; }
+        .no-print { text-align: center; margin-bottom: 30px; }
+        .btn-print { background-color: #1b5e20; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-print:hover { background-color: #2e7d32; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; max-width: 1200px; margin: 0 auto; }
+        .etiqueta { background: white; border: 2px dashed #1b5e20; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); page-break-inside: avoid; }
+        .etiqueta h3 { margin: 0 0 5px 0; color: #1b5e20; font-size: 18px; }
+        .etiqueta .ubicacion { font-weight: bold; font-size: 14px; color: #333; margin-bottom: 10px; min-height: 35px; display: flex; align-items: center; justify-content: center; }
+        .etiqueta img { width: 140px; height: 140px; margin: 5px 0; }
+        .etiqueta .tipo { font-size: 12px; color: #666; margin-top: 5px; }
+        @media print { .no-print { display: none; } body { background: white; padding: 0; } .grid-container { gap: 10px; } .etiqueta { border: 1px solid #999; box-shadow: none; } }
     </style>
 </head>
 <body>
 
     <h1>ETIQUETAS QR - CONTROL DE EXTINTORES</h1>
-    <p class="subtitle">Al escanear estos códigos con la cámara del celular, abrirán directamente tu aplicación web.</p>
+    <p class="subtitle">Escanea estos códigos con la cámara del celular para abrir la ficha de inspección.</p>
 
     <div class="no-print">
         <button class="btn-print" onclick="window.print()">🖨️ Imprimir Etiquetas</button>
     </div>
 
-    <div class="grid-container" id="etiquetas-grid">
-        <!-- Se generan dinámicamente -->
-    </div>
+    <div class="grid-container" id="etiquetas-grid"></div>
 
     <script>
-        // URL base de tu aplicación alojada en GitHub Pages
-        const BASE_URL = "https://luceritovasa2006-maker.github.io/control-extintores/inspeccion.html";
+        // Enlace exacto de tu GitHub Pages
+        const BASE_URL = "https://luceritovasa2006-maker.github.io/control-extintores/index.html";
 
-        // Lista de extintores y sus ubicaciones
-        const extintores = [
-            { id: 1, ubicacion: "PORTERÍA", tipo: "ABC - Multi 20 lb" },
-            { id: 2, ubicacion: "RECEPCIÓN / ADMINISTRACIÓN", tipo: "ABC - Multi 10 lb" },
-            { id: 3, ubicacion: "BODEGA GENERAL", tipo: "ABC - Multi 20 lb" },
-            { id: 4, ubicacion: "ÁREA DE EMPAQUE", tipo: "ABC - Multi 20 lb" },
+        const masterExtinguishers = [
+            { id: 1, ubicacion: "PORTERÍA", tipo: "ABC - 20 lb" },
+            { id: 2, ubicacion: "RECEPCIÓN / ADMINISTRACIÓN", tipo: "ABC - 10 lb" },
+            { id: 3, ubicacion: "BODEGA GENERAL", tipo: "ABC - 20 lb" },
+            { id: 4, ubicacion: "ÁREA DE EMPAQUE", tipo: "ABC - 20 lb" },
             { id: 5, ubicacion: "CUARTO FRÍO 1", tipo: "CO2 - 10 lb" },
-            { id: 6, ubicacion: "CUARTO DE BOMBAS", tipo: "ABC - Multi 20 lb" },
+            { id: 6, ubicacion: "CUARTO DE BOMBAS", tipo: "ABC - 20 lb" },
             { id: 7, ubicacion: "TALLER DE MANTENIMIENTO", tipo: "PQS - 20 lb" },
             { id: 8, ubicacion: "CASINO / COMEDOR", tipo: "Solkaflam - 10 lb" },
-            { id: 9, ubicacion: "SALÓN DE CAPACITACIONES", tipo: "ABC - Multi 10 lb" },
-            { id: 10, ubicacion: "VESTIERES", tipo: "ABC - Multi 10 lb" },
-            ...Array.from({ length: 34 }, (_, i) => ({
-                id: i + 11,
-                ubicacion: `ÁREA DE OPERACIÓN ${i + 11}`,
-                tipo: "ABC - Multi 20 lb"
-            }))
+            { id: "009", ubicacion: "SALÓN DE CAPACITACIONES", tipo: "ABC - 10 lb" },
+            { id: "010", ubicacion: "VESTIERES", tipo: "ABC - 10 lb" },
+            { id: "020", ubicacion: "ALM. FERTILIZANTES", tipo: "ABC - 20 lb" },
+            { id: "021", ubicacion: "SATELITE BOM. MIRFE", tipo: "ABC - 150 lb" },
+            { id: "022", ubicacion: "ENTRADA BOM. MIRFE", tipo: "ABC - 20 lb" },
+            { id: "023", ubicacion: "SATELITE EN DEPOSITO DE ACPM", tipo: "ABC - 150 lb" },
+            { id: "024", ubicacion: "TORRE AIREACION NUEVA", tipo: "ABC - 20 lb" },
+            { id: "025", ubicacion: "RESPEL", tipo: "ABC - 20 lb" },
+            { id: "026", ubicacion: "BOMBA FUM. 1", tipo: "ABC - 30 lb" },
+            { id: "027", ubicacion: "BOMBA FUM. 2", tipo: "ABC - 20 lb" },
+            { id: "028", ubicacion: "COMEDOR BQ 1", tipo: "ABC - 10 lb" },
+            { id: "029", ubicacion: "BOMBA FUM. 3", tipo: "ABC - 20 lb" },
+            { id: "030", ubicacion: "BOMBA MIRFE 2", tipo: "ABC - 20 lb" },
+            { id: "031", ubicacion: "BOMBA FUM. 5", tipo: "ABC - 30 lb" },
+            { id: "032", ubicacion: "SATELITE BLOQUE 27", tipo: "ABC - 150 lb" },
+            { id: "033", ubicacion: "EQUI. SOLDADURA TALLER 1", tipo: "ABC - 10 lb" },
+            { id: "034", ubicacion: "EQUI. SOLDADURA TALLER 2", tipo: "ABC - 10 lb" },
+            { id: "035", ubicacion: "EQUI. SOLDADURA TALLER 3", tipo: "ABC - 10 lb" },
+            { id: "036", ubicacion: "TALLER MTTO 2", tipo: "ABC - 10 lb" },
+            { id: "037", ubicacion: "TALLER MTTO", tipo: "ABC - 20 lb" },
+            { id: "038", ubicacion: "CUARTO COMBUSTIBLES", tipo: "ABC - 30 lb" },
+            { id: "039", ubicacion: "CUARTO DE MAQUINAS 2", tipo: "CO2 - 10 lb" },
+            { id: "040", ubicacion: "OFICINA MIRFE", tipo: "CO2 - 10 lb" },
+            { id: "041", ubicacion: "PLANTA ELECTRICA", tipo: "ABC - 20 lb" },
+            { id: "042", ubicacion: "CUARTO DE MAQUINAS 1", tipo: "CO2 - 10 lb" },
+            { id: "043", ubicacion: "CONSULTORIO MÉDICO", tipo: "ABC - 10 lb" },
+            { id: "044", ubicacion: "OFICINAS ATENCION", tipo: "CO2 - 10 lb" }
         ];
 
         const contenedor = document.getElementById('etiquetas-grid');
 
-        extintores.forEach(ext => {
-            // Se genera el enlace completo (Ej: https://.../inspeccion.html?id=1)
-            const enlaceWeb = `${BASE_URL}?id=${ext.id}`;
-            
-            // El QR codifica la URL completa para que la cámara del celular lo abra de una
+        masterExtinguishers.forEach(ext => {
+            const numStr = String(ext.id).padStart(3, '0');
+            const enlaceWeb = `${BASE_URL}?id=${numStr}`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(enlaceWeb)}`;
 
             const tarjeta = document.createElement('div');
             tarjeta.className = 'etiqueta';
             tarjeta.innerHTML = `
-                <h3>EXTINTOR #${ext.id}</h3>
+                <h3>EXTINTOR #${numStr}</h3>
                 <div class="ubicacion">${ext.ubicacion}</div>
-                <img src="${qrUrl}" alt="QR Extintor ${ext.id}">
+                <img src="${qrUrl}" alt="QR Extintor ${numStr}">
                 <div class="tipo">${ext.tipo}</div>
             `;
             contenedor.appendChild(tarjeta);
         });
     </script>
-
 </body>
 </html>
