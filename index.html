@@ -345,9 +345,15 @@
                         <div id="photo-preview-container" class="d-flex flex-wrap gap-2 mt-3"></div>
                     </div>
 
+                    <!-- DESPLEGABLE DE INSPECTORES SST -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nombre del Inspector / Auditor SST *</label>
-                        <input type="text" id="ext-inspector" class="form-control" required placeholder="Ej. Ing. Carlos Mendoza">
+                        <select id="ext-inspector" class="form-select fw-bold text-success" required>
+                            <option value="">Seleccione el inspector...</option>
+                            <option value="Paula Patiño">Paula Patiño</option>
+                            <option value="Andres Comba">Andres Comba</option>
+                            <option value="Angela Tijaro">Angela Tijaro</option>
+                        </select>
                     </div>
 
                     <!-- FIRMA DIGITAL CON LIBRERÍA DEDICADA -->
@@ -530,7 +536,7 @@
                 inspections = masterExtinguishers.map(e => ({
                     id: e.id, location: e.ubicacion, type: e.tipo, sub: e.sub, capacity: e.cap, height: e.alt, 
                     anoReg: e.anoReg, mesReg: e.mesReg, fechaReg: e.fechaReg, mes: e.mes, ano: e.ano,
-                    status: "OK", expiryDate: `${e.ano}-05-15`, lastInspection: "2026-02-10", inspector: "Ing. Carlos Mendoza",
+                    status: "OK", expiryDate: `${e.ano}-05-15`, lastInspection: "2026-02-10", inspector: "Paula Patiño",
                     checklist: checklistItems.reduce((acc, curr) => { acc[curr] = { result: 'Cumple', obs: 'OK' }; return acc; }, {}),
                     photos: [], signature: null
                 }));
@@ -595,6 +601,9 @@
             if (existingInspection) {
                 document.getElementById('ext-status').value = existingInspection.status;
                 document.getElementById('ext-expiry').value = existingInspection.expiryDate || '2027-05-15';
+                if(existingInspection.inspector) {
+                    document.getElementById('ext-inspector').value = existingInspection.inspector;
+                }
             }
         }
 
@@ -806,6 +815,7 @@
                     <div class="col-6"><strong>Capacidad / Altura:</strong> ${item.capacity} | ${item.height}</div>
                     <div class="col-6"><strong>Reg. Fecha:</strong> ${item.fechaReg || item.mesReg}</div>
                     <div class="col-6"><strong>Vencimiento:</strong> ${item.mes} de ${item.ano}</div>
+                    <div class="col-12 mt-2"><strong>Inspector:</strong> ${item.inspector}</div>
                 </div>
                 <h6>Lista de Chequeo:</h6> ${checklistHtml}
                 <h6>Evidencias Fotográficas:</h6> ${photosHtml}
