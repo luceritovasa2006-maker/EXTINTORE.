@@ -812,7 +812,11 @@
             if (!item) return;
 
             const element = document.createElement('div');
-            element.style.padding = '15px';
+            element.style.position = 'absolute';
+            element.style.left = '-9999px';
+            element.style.top = '0';
+            element.style.width = '210mm';
+            element.style.padding = '20px';
             element.style.fontFamily = 'Arial, sans-serif';
             element.style.color = '#333';
             element.style.background = '#ffffff';
@@ -867,7 +871,7 @@
                         <td style="padding: 3px;"><strong>Capacidad / Altura:</strong> ${item.capacity} | ${item.height}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 3px;" colspan="2"><strong>Vencimiento:</strong> ${item.vencMes} de ${item.vencAno}</td>
+                        <td style="padding: 3px;" colspan="2"><strong>Vencimiento:</strong> ${item.vencMes || 'AGO'} de ${item.vencAno || '2025'}</td>
                     </tr>
                     <tr>
                         <td style="padding: 3px;" colspan="2"><strong>Inspector:</strong> ${item.inspector}</td>
@@ -896,17 +900,21 @@
                 </div>
             `;
 
+            document.body.appendChild(element);
+
             const options = {
                 margin:       [5, 5, 5, 5],
                 filename:     `Inspeccion_${item.id}_${item.lastInspection}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, allowTaint: true },
+                html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             setTimeout(() => {
-                html2pdf().from(element).set(options).save();
-            }, 300);
+                html2pdf().from(element).set(options).save().then(() => {
+                    document.body.removeChild(element);
+                });
+            }, 600);
         }
 
         function exportToCSV() {
