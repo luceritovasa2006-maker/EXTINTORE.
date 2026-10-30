@@ -12,8 +12,6 @@
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <!-- Librería Especializada de Firma Digital -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
-    <!-- Librería para generar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --primary-color: #1b5e20;
@@ -111,12 +109,33 @@
         .badge-ok { background-color: #2e7d32; }
         .badge-warn { background-color: #f57c00; }
         .badge-danger { background-color: #c62828; }
+
+        /* Estilos exclusivos para la vista de impresión/descarga */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 10px;
+                background: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top shadow-sm no-print">
         <div class="container-fluid max-w-7xl">
             <a class="navbar-brand d-flex items-center gap-2 font-bold" href="#">
                 <i class="fa-solid fa-fire-extinguisher fa-lg"></i>
@@ -153,7 +172,7 @@
     </nav>
 
     <!-- Main Container -->
-    <div class="container my-4">
+    <div class="container my-4 no-print">
 
         <!-- SECTION 1: DASHBOARD -->
         <div id="section-dashboard" class="app-section">
@@ -223,7 +242,6 @@
         <div id="section-inspection-form" class="app-section d-none">
             <form id="form-extinguisher" onsubmit="saveInspection(event)">
                 
-                <!-- Datos de Cabecera del Extintor -->
                 <div class="card card-custom p-4 mb-4">
                     <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                         <h4 class="header-title mb-0"><i class="fa-solid fa-clipboard-list me-2"></i>Datos del Extintor</h4>
@@ -241,7 +259,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Ubicación / Área *</label>
-                            <input type="text" id="ext-location" class="form-control" required placeholder="Ej: Portería">
+                            <input type="text" id="ext-location" class="form-control" required placeholder="Ej: Porteria">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Tipo de Agente *</label>
@@ -284,7 +302,7 @@
                     </div>
                 </div>
 
-                <!-- Tabla de Verificación (12 puntos oficiales) -->
+                <!-- Tabla de Verificación (12 puntos) -->
                 <div class="card card-custom p-4 mb-4">
                     <h4 class="header-title border-bottom pb-2 mb-3">
                         <i class="fa-solid fa-list-check me-2"></i>Verificación del Extintor (Puntos de Control SST)
@@ -299,14 +317,12 @@
                                     <th style="width: 40%;">Observación Individual</th>
                                 </tr>
                             </thead>
-                            <tbody id="checklist-tbody">
-                                <!-- Generado dinámicamente -->
-                            </tbody>
+                            <tbody id="checklist-tbody"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Dictamen, Fotos y Firma ORGANIZADOS EN BLOQUE -->
+                <!-- Dictamen, Fotos y Firma -->
                 <div class="card card-custom p-4 mb-4">
                     <h4 class="header-title border-bottom pb-2 mb-3">
                         <i class="fa-solid fa-camera-retro me-2"></i>Dictamen, Evidencias y Firma
@@ -333,7 +349,6 @@
                         <div id="photo-preview-container" class="d-flex flex-wrap gap-2 mt-3"></div>
                     </div>
 
-                    <!-- DESPLEGABLE DE INSPECTORES SST -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nombre del Inspector / Auditor SST *</label>
                         <select id="ext-inspector" class="form-select fw-bold text-success" required>
@@ -344,7 +359,6 @@
                         </select>
                     </div>
 
-                    <!-- FIRMA DIGITAL CON LIBRERÍA DEDICADA -->
                     <div class="mb-3 pt-2 border-top">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="form-label fw-bold mb-0">Firma Digital del Inspector</label>
@@ -357,7 +371,6 @@
                     </div>
                 </div>
 
-                <!-- Botones de Acción -->
                 <div class="d-flex justify-content-end gap-2 mb-5">
                     <button type="button" class="btn btn-secondary px-4" onclick="showSection('dashboard')">Cancelar</button>
                     <button type="submit" class="btn btn-success btn-lg px-5">
@@ -368,7 +381,7 @@
             </form>
         </div>
 
-        <!-- SECTION 3: HISTORIAL DE INSPECCIONES Y EVIDENCIAS -->
+        <!-- SECTION 3: HISTORIAL -->
         <div id="section-history" class="app-section d-none">
             <div class="card card-custom p-4">
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
@@ -400,8 +413,11 @@
 
     </div>
 
-    <!-- MODAL LECTOR QR CÁMARA REAL -->
-    <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+    <!-- CONTENEDOR DE IMPRESIÓN DIRECTA -->
+    <div id="print-area"></div>
+
+    <!-- MODALES -->
+    <div class="modal fade no-print" id="qrModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
@@ -419,8 +435,7 @@
         </div>
     </div>
 
-    <!-- MODAL DETALLE -->
-    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade no-print" id="detailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
@@ -442,7 +457,6 @@
             "SOPORTE", "MANIJA", "CILINDRO", "SEÑALIZACION Y DEMARCACION"
         ];
 
-        // LISTA MAESTRA EXACTA DE LOS 44 EXTINTORES SEGÚN FORMATO OFICIAL FALCON FARMS
         const masterExtinguishers = [
             { id: "EXT-001", ubicacion: "Porteria", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.2 m", mes: "AGO", ano: "2025" },
             { id: "EXT-002", ubicacion: "Banos Vestieres", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "MAY", ano: "2025" },
@@ -462,7 +476,7 @@
             { id: "EXT-016", ubicacion: "Cuarto Frio Verdes Y Despacho", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "OCT", ano: "2025" },
             { id: "EXT-017", ubicacion: "Hornos", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "ENE", ano: "2026" },
             { id: "EXT-018", ubicacion: "Cocina", tipo: "PQS (Polvo Químico Seco)", sub: "Rodante", cap: "2.5 gl", alt: "1.5 m", mes: "JUL", ano: "2025" },
-            { id: "EXT-019", ubicacion: "Botellones de agua", type: "ABC", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-019", ubicacion: "Botellones de agua", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
             { id: "EXT-020", ubicacion: "Alm. Fertilizantes", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
             { id: "EXT-021", ubicacion: "Satelite Bom. Mirfe", tipo: "ABC", sub: "Multi", cap: "150 lb", alt: "Nivel piso", mes: "OCT", ano: "2025" },
             { id: "EXT-022", ubicacion: "Entrada Bom. Mirfe", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
@@ -635,7 +649,6 @@
             renderPhotoPreviews();
         }
 
-        // INICIALIZACIÓN DE FIRMA DIGITAL CON LIBRERÍA ESPECIALIZADA
         function initSignaturePad() {
             const canvas = document.getElementById('signature-pad');
             signaturePad = new SignaturePad(canvas, {
@@ -764,8 +777,8 @@
                         <button class="btn btn-sm btn-outline-primary mb-1" onclick="viewDetail('${item.id}')">
                             <i class="fa-solid fa-eye"></i> Ver
                         </button>
-                        <button class="btn btn-sm btn-danger mb-1" onclick="downloadPDF('${item.id}')">
-                            <i class="fa-solid fa-file-pdf"></i> PDF
+                        <button class="btn btn-sm btn-danger mb-1" onclick="printPDF('${item.id}')">
+                            <i class="fa-solid fa-file-pdf"></i> Guardar PDF
                         </button>
                     </td>
                 `;
@@ -805,21 +818,12 @@
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
 
-        function downloadPDF(id) {
+        // FUNCIÓN NATIVA DE IMPRESIÓN/DESCARGA DIRECTA (100% COMPATIBLE CON CELULARES)
+        function printPDF(id) {
             const savedData = localStorage.getItem('sst_extinguisher_data');
             const currentInspections = savedData ? JSON.parse(savedData) : inspections;
             const item = currentInspections.find(i => i.id === id);
             if (!item) return;
-
-            const element = document.createElement('div');
-            element.style.position = 'absolute';
-            element.style.left = '-9999px';
-            element.style.top = '0';
-            element.style.width = '210mm';
-            element.style.padding = '20px';
-            element.style.fontFamily = 'Arial, sans-serif';
-            element.style.color = '#333';
-            element.style.background = '#ffffff';
 
             let checklistHtml = '';
             for (const [key, val] of Object.entries(item.checklist || {})) {
@@ -828,109 +832,102 @@
                 const color = resText === 'Cumple' ? 'color: #198754;' : 'color: #dc3545;';
                 checklistHtml += `
                     <tr>
-                        <td style="border: 1px solid #ddd; padding: 5px; font-size: 10px;">${key}</td>
-                        <td style="border: 1px solid #ddd; padding: 5px; font-size: 10px; text-align: center; font-weight: bold; ${color}">${resText}</td>
-                        <td style="border: 1px solid #ddd; padding: 5px; font-size: 10px;">${obsText}</td>
+                        <td style="border: 1px solid #ddd; padding: 6px; font-size: 11px;">${key}</td>
+                        <td style="border: 1px solid #ddd; padding: 6px; font-size: 11px; text-align: center; font-weight: bold; ${color}">${resText}</td>
+                        <td style="border: 1px solid #ddd; padding: 6px; font-size: 11px;">${obsText}</td>
                     </tr>
                 `;
             }
 
             let photosHtml = '';
             if (item.photos && item.photos.length > 0) {
-                photosHtml = '<div style="margin-top: 10px;"><strong>Evidencias Fotográficas:</strong><br><div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;">';
+                photosHtml = '<div style="margin-top: 15px;"><strong>Evidencias Fotográficas:</strong><br><div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px;">';
                 item.photos.forEach(p => {
-                    photosHtml += `<img src="${p}" crossorigin="anonymous" style="width: 90px; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">`;
+                    photosHtml += `<img src="${p}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc;">`;
                 });
                 photosHtml += '</div></div>';
             }
 
             let signatureHtml = '';
             if (item.signature) {
-                signatureHtml = `<div style="margin-top: 15px;"><strong>Firma del Inspector:</strong><br><img src="${item.signature}" crossorigin="anonymous" style="max-height: 60px; border: 1px solid #ccc; padding: 3px; margin-top: 3px;"></div>`;
+                signatureHtml = `<div style="margin-top: 20px;"><strong>Firma del Inspector:</strong><br><img src="${item.signature}" style="max-height: 80px; border: 1px solid #ccc; padding: 4px; margin-top: 4px;"></div>`;
             }
 
-            element.innerHTML = `
-                <div style="border-bottom: 2px solid #1b5e20; padding-bottom: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h2 style="color: #1b5e20; margin: 0; font-size: 16px;">ACTA DE INSPECCIÓN DE EXTINTOR</h2>
-                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #666;">Falcon Farms - Seguridad y Salud en el Trabajo (SST)</p>
+            const printContainer = document.getElementById('print-area');
+            printContainer.innerHTML = `
+                <div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: 0 auto;">
+                    <div style="border-bottom: 3px solid #1b5e20; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 style="color: #1b5e20; margin: 0; font-size: 20px;">ACTA DE INSPECCIÓN DE EXTINTOR</h2>
+                            <p style="margin: 3px 0 0 0; font-size: 12px; color: #666;">Falcon Farms - Seguridad y Salud en el Trabajo (SST)</p>
+                        </div>
+                        <div style="text-align: right; font-size: 12px;">
+                            <strong>ID:</strong> ${item.id}<br>
+                            <strong>Fecha:</strong> ${item.lastInspection}
+                        </div>
                     </div>
-                    <div style="text-align: right; font-size: 10px;">
-                        <strong>ID:</strong> ${item.id}<br>
-                        <strong>Fecha:</strong> ${item.lastInspection}
-                    </div>
-                </div>
 
-                <table style="width: 100%; font-size: 10px; margin-bottom: 10px; border-collapse: collapse;">
-                    <tr>
-                        <td style="padding: 3px; width: 50%;"><strong>Ubicación:</strong> ${item.location}</td>
-                        <td style="padding: 3px; width: 50%;"><strong>Estado Final:</strong> ${item.status}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 3px;"><strong>Tipo de Agente:</strong> ${item.type} - ${item.sub}</td>
-                        <td style="padding: 3px;"><strong>Capacidad / Altura:</strong> ${item.capacity} | ${item.height}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 3px;" colspan="2"><strong>Vencimiento:</strong> ${item.vencMes || 'AGO'} de ${item.vencAno || '2025'}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 3px;" colspan="2"><strong>Inspector:</strong> ${item.inspector}</td>
-                    </tr>
-                </table>
-
-                <h3 style="font-size: 12px; color: #1b5e20; border-bottom: 1px solid #ddd; padding-bottom: 3px; margin-bottom: 6px;">Lista de Verificación (12 Puntos)</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                    <thead>
-                        <tr style="background-color: #1b5e20; color: white;">
-                            <th style="padding: 5px; font-size: 10px; text-align: left;">Elemento</th>
-                            <th style="padding: 5px; font-size: 10px; text-align: center;">Resultado</th>
-                            <th style="padding: 5px; font-size: 10px; text-align: left;">Observación</th>
+                    <table style="width: 100%; font-size: 12px; margin-bottom: 15px; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 4px; width: 50%;"><strong>Ubicación:</strong> ${item.location}</td>
+                            <td style="padding: 4px; width: 50%;"><strong>Estado Final:</strong> ${item.status}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${checklistHtml}
-                    </tbody>
-                </table>
+                        <tr>
+                            <td style="padding: 4px;"><strong>Tipo de Agente:</strong> ${item.type} - ${item.sub}</td>
+                            <td style="padding: 4px;"><strong>Capacidad / Altura:</strong> ${item.capacity} | ${item.height}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px;" colspan="2"><strong>Vencimiento:</strong> ${item.vencMes || 'AGO'} de ${item.vencAno || '2025'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px;" colspan="2"><strong>Inspector:</strong> ${item.inspector}</td>
+                        </tr>
+                    </table>
 
-                ${photosHtml}
-                ${signatureHtml}
+                    <h3 style="font-size: 14px; color: #1b5e20; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Lista de Verificación (12 Puntos)</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                        <thead>
+                            <tr style="background-color: #1b5e20; color: white;">
+                                <th style="padding: 6px; font-size: 11px; text-align: left;">Elemento</th>
+                                <th style="padding: 6px; font-size: 11px; text-align: center;">Resultado</th>
+                                <th style="padding: 6px; font-size: 11px; text-align: left;">Observación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${checklistHtml}
+                        </tbody>
+                    </table>
 
-                <div style="margin-top: 15px; font-size: 9px; color: #888; text-align: right;">
-                    Reporte generado automáticamente por la App SST Finca Torremolinos
+                    ${photosHtml}
+                    ${signatureHtml}
+
+                    <div style="margin-top: 25px; font-size: 10px; color: #888; text-align: right;">
+                        Reporte generado automáticamente por la App SST Finca Torremolinos
+                    </div>
                 </div>
             `;
 
-            document.body.appendChild(element);
-
-            const options = {
-                margin:       [5, 5, 5, 5],
-                filename:     `Inspeccion_${item.id}_${item.lastInspection}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
             setTimeout(() => {
-                html2pdf().from(element).set(options).save().then(() => {
-                    document.body.removeChild(element);
-                });
-            }, 600);
+                window.print();
+            }, 300);
         }
 
         function exportToCSV() {
             const savedData = localStorage.getItem('sst_extinguisher_data');
             const currentInspections = savedData ? JSON.parse(savedData) : inspections;
 
-            let csv = "\uFEFFID Extintor,Ubicacion,Tipo Agente,Subtipo,Capacidad,Altura,Mes Vencimiento,Ano Vencimiento,Estado,Fecha Inspeccion,Inspector\n";
+            let csv = "\uFEFFID Extintor;Ubicacion;Tipo Agente;Subtipo;Capacidad;Altura;Mes Vencimiento;Ano Vencimiento;Estado;Fecha Inspeccion;Inspector;Cantidad Fotos;Firma Registrada\n";
             
             currentInspections.forEach(i => {
-                csv += `"${i.id || ''}","${i.location || ''}","${i.type || ''}","${i.sub || ''}","${i.capacity || ''}","${i.height || ''}","${i.vencMes || ''}","${i.vencAno || ''}","${i.status || ''}","${i.lastInspection || ''}","${i.inspector || ''}"\n`;
+                const tieneFirma = i.signature ? "SI" : "NO";
+                const numFotos = (i.photos || []).length;
+                csv += `"${i.id || ''}";"${i.location || ''}";"${i.type || ''}";"${i.sub || ''}";"${i.capacity || ''}";"${i.height || ''}";"${i.vencMes || ''}";"${i.vencAno || ''}";"${i.status || ''}";"${i.lastInspection || ''}";"${i.inspector || ''}";"${numFotos}";"${tieneFirma}"\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `Reporte_Extintores_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `Reporte_Extintores_FalconFarms_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
