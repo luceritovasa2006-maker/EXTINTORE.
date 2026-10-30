@@ -241,7 +241,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Ubicación / Área *</label>
-                            <input type="text" id="ext-location" class="form-control" required placeholder="Ej: Bodega Central">
+                            <input type="text" id="ext-location" class="form-control" required placeholder="Ej: Portería">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Tipo de Agente *</label>
@@ -253,7 +253,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-bold">Tipo Extintor *</label>
+                            <label class="form-label fw-bold">Subtipo *</label>
                             <select id="ext-subtype" class="form-select" required>
                                 <option value="Multi">Multi</option>
                                 <option value="CO2">CO2</option>
@@ -269,29 +269,17 @@
                             <input type="text" id="ext-height" class="form-control" placeholder="Ej: 1.5 m o Nivel piso">
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-bold">Año Registro *</label>
-                            <input type="text" id="ext-ano-reg" class="form-control" placeholder="2026">
+                            <label class="form-label fw-bold">Año Venc. *</label>
+                            <input type="text" id="ext-venc-ano" class="form-control" placeholder="2025">
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-bold">Mes Registro *</label>
-                            <input type="text" id="ext-mes-reg" class="form-control" placeholder="AGOSTO">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-bold">Fecha / Día *</label>
-                            <input type="text" id="ext-fecha-reg" class="form-control" placeholder="08/08/2026">
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label fw-bold">Mes Vencimiento *</label>
                             <select id="ext-venc-mes" class="form-select">
                                 <option value="ENE">ENE</option><option value="FEB">FEB</option><option value="MAR">MAR</option>
                                 <option value="ABR">ABR</option><option value="MAY">MAY</option><option value="JUN">JUN</option>
-                                <option value="JUL">JUL</option><option value="AGO">AGO</option><option value="SEP">SEP</option>
+                                <option value="JUL">JUL</option><option value="AGO">AGO</option><option value="SEPT">SEPT</option>
                                 <option value="OCT">OCT</option><option value="NOV">NOV</option><option value="DIC">DIC</option>
                             </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">Año Vencimiento *</label>
-                            <input type="text" id="ext-venc-ano" class="form-control" placeholder="2027">
                         </div>
                     </div>
                 </div>
@@ -454,53 +442,53 @@
             "SOPORTE", "MANIJA", "CILINDRO", "SEÑALIZACION Y DEMARCACION"
         ];
 
+        // LISTA MAESTRA EXACTA DE LOS 44 EXTINTORES SEGÚN FORMATO OFICIAL FALCON FARMS
         const masterExtinguishers = [
-            { id: "EXT-001", ubicacion: "PORTERÍA", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-002", ubicacion: "RECEPCIÓN / ADMINISTRACIÓN", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-003", ubicacion: "BODEGA GENERAL", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-004", ubicacion: "ÁREA DE EMPAQUE", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-005", ubicacion: "CUARTO FRÍO 1", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "MAY", ano: "2027" },
-            { id: "EXT-006", ubicacion: "CUARTO DE BOMBAS", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-007", ubicacion: "TALLER DE MANTENIMIENTO", tipo: "PQS (Polvo Químico Seco)", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-008", ubicacion: "CASINO / COMEDOR", tipo: "Solkaflam / Agente Limpio", sub: "Multi", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "MAR", ano: "2027" },
-            { id: "EXT-009", ubicacion: "SALÓN DE CAPACITACIONES", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-010", ubicacion: "VESTIERES", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-020", ubicacion: "ALM. FERTILIZANTES", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-021", ubicacion: "SATELITE BOM. MIRFE", tipo: "ABC", sub: "Multi", cap: "150 lb", alt: "Nivel piso", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-022", ubicacion: "ENTRADA BOM. MIRFE", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "MAY", ano: "2027" },
-            { id: "EXT-023", ubicacion: "SATELITE EN DEPOSITO DE ACPM", tipo: "ABC", sub: "Multi", cap: "150 lb", alt: "Nivel piso", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "01/09/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-024", ubicacion: "TORRE AIREACION NUEVA", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-025", ubicacion: "RESPEL", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-026", ubicacion: "BOMBA FUM. 1", tipo: "ABC", sub: "Multi", cap: "30 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-027", ubicacion: "BOMBA FUM. 2", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-028", ubicacion: "COMEDOR BQ 1", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "MAR", ano: "2027" },
-            { id: "EXT-029", ubicacion: "BOMBA FUM. 3", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-030", ubicacion: "BOMBA MIRFE 2", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "MAR", ano: "2027" },
-            { id: "EXT-031", ubicacion: "BOMBA FUM. 5", tipo: "ABC", sub: "Multi", cap: "30 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "MAR", ano: "2027" },
-            { id: "EXT-032", ubicacion: "SATELITE BLOQUE 27", tipo: "ABC", sub: "Multi", cap: "150 lb", alt: "Nivel piso", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "DIC", ano: "2026" },
-            { id: "EXT-033", ubicacion: "EQUI. SOLDADURA TALLER 1", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "Nivel carro", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-034", ubicacion: "EQUI. SOLDADURA TALLER 2", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "Nivel carro", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-035", ubicacion: "EQUI. SOLDADURA TALLER 3", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "Nivel carro", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "03/09/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-036", ubicacion: "TALLER MTTO 2", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-037", ubicacion: "TALLER MTTO", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-038", ubicacion: "CUARTO COMBUSTIBLES", tipo: "ABC", sub: "Multi", cap: "30 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "05/08/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-039", ubicacion: "CUARTO DE MAQUINAS 2", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "AGOSTO", mes: "ABR", ano: "2025" },
-            { id: "EXT-040", ubicacion: "OFICINA MIRFE", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "MAY", ano: "2027" },
-            { id: "EXT-041", ubicacion: "PLANTA ELECTRICA", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "01/09/2026", mes: "SEP", ano: "2026" },
-            { id: "EXT-042", ubicacion: "CUARTO DE MAQUINAS 1", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "MAY", ano: "2027" },
-            { id: "EXT-043", ubicacion: "CONSULTORIO MÉDICO", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "05/08/2026", mes: "NOV", ano: "2026" },
-            { id: "EXT-044", ubicacion: "OFICINAS ATENCION", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "05/08/2026", mes: "MAY", ano: "2027" }
+            { id: "EXT-001", ubicacion: "Porteria", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.2 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-002", ubicacion: "Banos Vestieres", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "MAY", ano: "2025" },
+            { id: "EXT-003", ubicacion: "Oficina Adm", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", mes: "ABR", ano: "2025" },
+            { id: "EXT-004", ubicacion: "Entrada Alm. Gen.", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-005", ubicacion: "Entrada Alm. Plg.", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-006", ubicacion: "Cuarto Frio N-5", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-007", ubicacion: "Pasillo Alm. Ge. Carton", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "FEB", ano: "2025" },
+            { id: "EXT-008", ubicacion: "Armado de carton-piso 2", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "SEPT", ano: "2025" },
+            { id: "EXT-009", ubicacion: "Oficina Posco", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", mes: "ABR", ano: "2025" },
+            { id: "EXT-010", ubicacion: "Pegado de Stickers", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "ENE", ano: "2026" },
+            { id: "EXT-011", ubicacion: "Escalera Poscosecha", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-012", ubicacion: "Banos Posco", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "FEB", ano: "2025" },
+            { id: "EXT-013", ubicacion: "Salida emergencia N° 2", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "FEB", ano: "2025" },
+            { id: "EXT-014", ubicacion: "Cuarto Frio N-5", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "FEB", ano: "2025" },
+            { id: "EXT-015", ubicacion: "Cuarto Frio N-7", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "MAY", ano: "2025" },
+            { id: "EXT-016", ubicacion: "Cuarto Frio Verdes Y Despacho", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "OCT", ano: "2025" },
+            { id: "EXT-017", ubicacion: "Hornos", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "ENE", ano: "2026" },
+            { id: "EXT-018", ubicacion: "Cocina", tipo: "PQS (Polvo Químico Seco)", sub: "Rodante", cap: "2.5 gl", alt: "1.5 m", mes: "JUL", ano: "2025" },
+            { id: "EXT-019", ubicacion: "Botellones de agua", type: "ABC", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-020", ubicacion: "Alm. Fertilizantes", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-021", ubicacion: "Satelite Bom. Mirfe", tipo: "ABC", sub: "Multi", cap: "150 lb", alt: "Nivel piso", mes: "OCT", ano: "2025" },
+            { id: "EXT-022", ubicacion: "Entrada Bom. Mirfe", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-023", ubicacion: "Satelite en deposito de ACPM", tipo: "ABC", sub: "Multi", cap: "150 lb", alt: "Nivel piso", mes: "OCT", ano: "2025" },
+            { id: "EXT-024", ubicacion: "Torre aireacion nueva", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "OCT", ano: "2025" },
+            { id: "EXT-025", ubicacion: "Respel", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "OCT", ano: "2025" },
+            { id: "EXT-026", ubicacion: "Bomba Fum. 1", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-027", ubicacion: "Bomba Fum. 2", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-028", ubicacion: "Comedor BQ 1", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", mes: "OCT", ano: "2025" },
+            { id: "EXT-029", ubicacion: "Bomba Fum. 3", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "SEPT", ano: "2025" },
+            { id: "EXT-030", ubicacion: "Bomba Fum. 4", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-031", ubicacion: "Bomba Fum. 5", tipo: "ABC", sub: "Multi", cap: "30 lb", alt: "1.5 m", mes: "SEPT", ano: "2025" },
+            { id: "EXT-032", ubicacion: "Satelite Bloque 27", tipo: "ABC", sub: "Multi", cap: "150 lb", alt: "Nivel piso", mes: "OCT", ano: "2025" },
+            { id: "EXT-033", ubicacion: "Equi. Soldadura Taller 1", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "Nivel carro", mes: "OCT", ano: "2025" },
+            { id: "EXT-034", ubicacion: "Equi. Soldadura Taller 2", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "Nivel carro", mes: "OCT", ano: "2025" },
+            { id: "EXT-035", ubicacion: "Equi. Soldadura Taller 3", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "Nivel carro", mes: "AGO", ano: "2025" },
+            { id: "EXT-036", ubicacion: "Taller Mtto 2", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", mes: "OCT", ano: "2025" },
+            { id: "EXT-037", ubicacion: "Taller Mtto", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "OCT", ano: "2025" },
+            { id: "EXT-038", ubicacion: "Cuarto Combustibles", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", mes: "JUL", ano: "2025" },
+            { id: "EXT-039", ubicacion: "Recepcion", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", mes: "ABR", ano: "2025" },
+            { id: "EXT-040", ubicacion: "Oficina mirfe", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", mes: "ABR", ano: "2025" },
+            { id: "EXT-041", ubicacion: "Planta electrica", tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", mes: "SEPT", ano: "2025" },
+            { id: "EXT-042", ubicacion: "Escaleras externas cuarto armado carton", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", mes: "ABR", ano: "2025" },
+            { id: "EXT-043", ubicacion: "Oficina SST", tipo: "ABC", sub: "Multi", cap: "10 lb", alt: "1.5 m", mes: "AGO", ano: "2025" },
+            { id: "EXT-044", ubicacion: "Oficinas Atencion", tipo: "BC", sub: "CO2", cap: "10 lb", alt: "1.5 m", mes: "ABR", ano: "2025" }
         ];
-
-        for(let i=1; i<=44; i++) {
-            const codeId = `EXT-${String(i).padStart(3, '0')}`;
-            if(!masterExtinguishers.find(e => e.id === codeId)) {
-                masterExtinguishers.push({
-                    id: codeId, ubicacion: `ÁREA DE OPERACIÓN ${i}`, tipo: "ABC", sub: "Multi", cap: "20 lb", alt: "1.5 m", anoReg: "2026", mesReg: "AGOSTO", fechaReg: "08/08/2026", mes: "SEP", ano: "2026"
-                });
-            }
-        }
-        masterExtinguishers.sort((a,b) => a.id.localeCompare(b.id));
 
         let inspections = [];
         let currentPhotos = [];
@@ -534,8 +522,8 @@
                 inspections = JSON.parse(data);
             } else {
                 inspections = masterExtinguishers.map(e => ({
-                    id: e.id, location: e.ubicacion, type: e.tipo, sub: e.sub, capacity: e.cap, height: e.alt, 
-                    anoReg: e.anoReg, mesReg: e.mesReg, fechaReg: e.fechaReg, mes: e.mes, ano: e.ano,
+                    id: e.id, location: e.ubicacion, type: e.tipo || "ABC", sub: e.sub || "Multi", capacity: e.cap || "20 lb", height: e.alt || "1.5 m", 
+                    vencMes: e.mes, vencAno: e.ano,
                     status: "OK", expiryDate: `${e.ano}-05-15`, lastInspection: "2026-02-10", inspector: "Paula Patiño",
                     checklist: checklistItems.reduce((acc, curr) => { acc[curr] = { result: 'Cumple', obs: 'OK' }; return acc; }, {}),
                     photos: [], signature: null
@@ -586,15 +574,12 @@
             
             if (masterInfo) {
                 document.getElementById('ext-location').value = masterInfo.ubicacion;
-                document.getElementById('ext-type').value = masterInfo.tipo;
-                document.getElementById('ext-subtype').value = masterInfo.sub;
-                document.getElementById('ext-capacity').value = masterInfo.cap;
-                document.getElementById('ext-height').value = masterInfo.alt;
-                document.getElementById('ext-ano-reg').value = masterInfo.anoReg;
-                document.getElementById('ext-mes-reg').value = masterInfo.mesReg;
-                document.getElementById('ext-fecha-reg').value = masterInfo.fechaReg;
-                document.getElementById('ext-venc-mes').value = masterInfo.mes;
-                document.getElementById('ext-venc-ano').value = masterInfo.ano;
+                document.getElementById('ext-type').value = masterInfo.tipo || "ABC";
+                document.getElementById('ext-subtype').value = masterInfo.sub || "Multi";
+                document.getElementById('ext-capacity').value = masterInfo.cap || "20 lb";
+                document.getElementById('ext-height').value = masterInfo.alt || "1.5 m";
+                document.getElementById('ext-venc-ano').value = masterInfo.ano || "2025";
+                document.getElementById('ext-venc-mes').value = masterInfo.mes || "AGO";
             }
 
             const existingInspection = inspections.find(i => i.id === codeId);
@@ -685,11 +670,8 @@
             const sub = document.getElementById('ext-subtype').value;
             const capacity = document.getElementById('ext-capacity').value;
             const height = document.getElementById('ext-height').value;
-            const anoReg = document.getElementById('ext-ano-reg').value;
-            const mesReg = document.getElementById('ext-mes-reg').value;
-            const fechaReg = document.getElementById('ext-fecha-reg').value;
-            const mes = document.getElementById('ext-venc-mes').value;
-            const ano = document.getElementById('ext-venc-ano').value;
+            const vencMes = document.getElementById('ext-venc-mes').value;
+            const vencAno = document.getElementById('ext-venc-ano').value;
             const status = document.getElementById('ext-status').value;
             const expiry = document.getElementById('ext-expiry').value;
             const inspector = document.getElementById('ext-inspector').value;
@@ -704,7 +686,7 @@
             });
 
             const newRecord = {
-                id: extId, location, type, sub, capacity, height, anoReg, mesReg, fechaReg, mes, ano, status, expiryDate: expiry,
+                id: extId, location, type, sub, capacity, height, vencMes, vencAno, status, expiryDate: expiry,
                 lastInspection: new Date().toISOString().split('T')[0], inspector,
                 checklist: checklistData, photos: [...currentPhotos], 
                 signature: signaturePad && !signaturePad.isEmpty() ? signaturePad.toDataURL() : null
@@ -813,8 +795,7 @@
                     <div class="col-6"><strong>Estado:</strong> ${item.status}</div>
                     <div class="col-6"><strong>Tipo Agente:</strong> ${item.type} - ${item.sub}</div>
                     <div class="col-6"><strong>Capacidad / Altura:</strong> ${item.capacity} | ${item.height}</div>
-                    <div class="col-6"><strong>Reg. Fecha:</strong> ${item.fechaReg || item.mesReg}</div>
-                    <div class="col-6"><strong>Vencimiento:</strong> ${item.mes} de ${item.ano}</div>
+                    <div class="col-6"><strong>Vencimiento:</strong> ${item.vencMes} de ${item.vencAno}</div>
                     <div class="col-12 mt-2"><strong>Inspector:</strong> ${item.inspector}</div>
                 </div>
                 <h6>Lista de Chequeo:</h6> ${checklistHtml}
@@ -854,16 +835,21 @@
             if (item.photos && item.photos.length > 0) {
                 photosHtml = '<div style="margin-top: 10px;"><strong>Evidencias Fotográficas:</strong><br><div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px;">';
                 item.photos.forEach(p => {
-                    photosHtml += `<img src="${p}" style="width: 90px; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">`;
+                    photosHtml += `<img src="${p}" crossorigin="anonymous" style="width: 90px; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">`;
                 });
                 photosHtml += '</div></div>';
+            }
+
+            let signatureHtml = '';
+            if (item.signature) {
+                signatureHtml = `<div style="margin-top: 15px;"><strong>Firma del Inspector:</strong><br><img src="${item.signature}" crossorigin="anonymous" style="max-height: 60px; border: 1px solid #ccc; padding: 3px; margin-top: 3px;"></div>`;
             }
 
             element.innerHTML = `
                 <div style="border-bottom: 2px solid #1b5e20; padding-bottom: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <h2 style="color: #1b5e20; margin: 0; font-size: 16px;">ACTA DE INSPECCIÓN DE EXTINTOR</h2>
-                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #666;">Sistema de Gestión de Seguridad y Salud en el Trabajo (SST)</p>
+                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #666;">Falcon Farms - Seguridad y Salud en el Trabajo (SST)</p>
                     </div>
                     <div style="text-align: right; font-size: 10px;">
                         <strong>ID:</strong> ${item.id}<br>
@@ -881,8 +867,7 @@
                         <td style="padding: 3px;"><strong>Capacidad / Altura:</strong> ${item.capacity} | ${item.height}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 3px;"><strong>Registro:</strong> ${item.fechaReg || item.mesReg || ''} (${item.anoReg || ''})</td>
-                        <td style="padding: 3px;"><strong>Vencimiento:</strong> ${item.mes} de ${item.ano}</td>
+                        <td style="padding: 3px;" colspan="2"><strong>Vencimiento:</strong> ${item.vencMes} de ${item.vencAno}</td>
                     </tr>
                     <tr>
                         <td style="padding: 3px;" colspan="2"><strong>Inspector:</strong> ${item.inspector}</td>
@@ -904,36 +889,34 @@
                 </table>
 
                 ${photosHtml}
+                ${signatureHtml}
 
-                <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: flex-end; page-break-inside: avoid;">
-                    <div>
-                        ${item.signature ? `<strong>Firma del Inspector:</strong><br><img src="${item.signature}" style="max-height: 50px; border: 1px solid #ccc; padding: 3px; margin-top: 3px;">` : ''}
-                    </div>
-                    <div style="font-size: 9px; color: #888; text-align: right;">
-                        Reporte generado automáticamente por la App SST Finca Torremolinos
-                    </div>
+                <div style="margin-top: 15px; font-size: 9px; color: #888; text-align: right;">
+                    Reporte generado automáticamente por la App SST Finca Torremolinos
                 </div>
             `;
 
             const options = {
                 margin:       [5, 5, 5, 5],
                 filename:     `Inspeccion_${item.id}_${item.lastInspection}.pdf`,
-                image:        { type: 'jpeg', quality: 0.95 },
-                html2canvas:  { scale: 2, useCORS: true, logging: true },
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, allowTaint: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().from(element).set(options).save();
+            setTimeout(() => {
+                html2pdf().from(element).set(options).save();
+            }, 300);
         }
 
         function exportToCSV() {
             const savedData = localStorage.getItem('sst_extinguisher_data');
             const currentInspections = savedData ? JSON.parse(savedData) : inspections;
 
-            let csv = "\uFEFFID Extintor,Ubicacion,Tipo Agente,Subtipo,Capacidad,Altura,Ano Registro,Mes Registro,Fecha Registro,Mes Vencimiento,Ano Vencimiento,Estado,Fecha Inspeccion,Inspector\n";
+            let csv = "\uFEFFID Extintor,Ubicacion,Tipo Agente,Subtipo,Capacidad,Altura,Mes Vencimiento,Ano Vencimiento,Estado,Fecha Inspeccion,Inspector\n";
             
             currentInspections.forEach(i => {
-                csv += `"${i.id || ''}","${i.location || ''}","${i.type || ''}","${i.sub || ''}","${i.capacity || ''}","${i.height || ''}","${i.anoReg || '2026'}","${i.mesReg || 'AGOSTO'}","${i.fechaReg || ''}","${i.mes || ''}","${i.ano || ''}","${i.status || ''}","${i.lastInspection || ''}","${i.inspector || ''}"\n`;
+                csv += `"${i.id || ''}","${i.location || ''}","${i.type || ''}","${i.sub || ''}","${i.capacity || ''}","${i.height || ''}","${i.vencMes || ''}","${i.vencAno || ''}","${i.status || ''}","${i.lastInspection || ''}","${i.inspector || ''}"\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
