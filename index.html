@@ -400,8 +400,18 @@
                                 <th>ID</th>
                                 <th>Ubicación</th>
                                 <th>Agente / Tipo</th>
+                                <th>Subtipo</th>
+                                <th>Capacidad</th>
+                                <th>Altura</th>
+                                <th>Año Vencimiento</th>
+                                <th>Mes Vencimiento</th>
+                                <th>Elemento a Verificar</th>
+                                <th>Cumple</th>
+                                <th>Observaciones</th>
                                 <th>Estado</th>
+                                <th>Proxima Revision</th>
                                 <th>Inspector</th>
+                                <th>N° Fotos</th>
                                 <th>Evidencias</th>
                                 <th class="text-center">Acción</th>
                             </tr>
@@ -985,7 +995,7 @@
                 subtitleCell.alignment = { horizontal: 'center' };
 
                 const headerRowIndex = 6;
-                const headers = ["Fecha Inspección", "ID Extintor", "Ubicación", "Tipo Agente", "Subtipo", "Capacidad", "Altura", "Vencimiento", "Estado", "Inspector", "N° Fotos", "Firma Registrada"];
+                const headers = ["Fecha Inspección", "ID Extintor", "Ubicación", "Tipo Agente", "Subtipo", "Capacidad", "Altura", " Año Vencimiento","Mes Vencimiento", "Elemento a Verificar","Cumple","Observaciones","Estado","Proxima Revision","Inspector", "N° Fotos", "Firma Registrada"];
                 const headerRow = sheet.getRow(headerRowIndex);
                 headers.forEach((h, i) => { headerRow.getCell(i + 1).value = h; });
                 headerRow.eachCell(cell => {
