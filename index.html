@@ -393,32 +393,22 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Fecha</th>
-                                <th>ID</th>
-                                <th>Ubicación</th>
-                                <th>Agente / Tipo</th>
-                                <th>Subtipo</th>
-                                <th>Capacidad</th>
-                                <th>Altura</th>
-                                <th>Año Vencimiento</th>
-                                <th>Mes Vencimiento</th>
-                                <th>Elemento a Verificar</th>
-                                <th>Cumple</th>
-                                <th>Observaciones</th>
-                                <th>Estado</th>
-                                <th>Proxima Revision</th>
-                                <th>Inspector</th>
-                                <th>N° Fotos</th>
-                                <th>Evidencias</th>
-                                <th class="text-center">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="history-tbody"></tbody>
-                    </table>
-                </div>
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Fecha</th>
+                <th>ID</th>
+                <th>Ubicación</th>
+                <th>Agente / Tipo</th>
+                <th>Estado</th>
+                <th>Inspector</th>
+                <th>Fotos</th>
+                <th class="text-center">Acción</th>
+            </tr>
+        </thead>
+        <tbody id="history-tbody"></tbody>
+    </table>
+</div>
             </div>
         </div>
 
@@ -782,32 +772,76 @@
             document.getElementById('dash-danger').innerText = inspections.filter(i => i.status === 'Inoperativo').length;
         }
 
-        function renderHistory() {
-            const tbody = document.getElementById('history-tbody');
-            tbody.innerHTML = '';
-            inspections.forEach(item => {
-                let badgeClass = item.status === 'OK' ? 'badge-ok' : item.status === 'Próximo a Vencer' ? 'badge-warn' : 'badge-danger';
+       function renderHistory() {
+    const tbody = document.getElementById('history-tbody');
+    tbody.innerHTML = '';
+    
+    inspections.forEach(item => {
+        let badgeClass = item.status === 'OK' ? 'badge-ok' : item.status === 'Próximo a Vencer' ? 'badge-warn' : 'badge-danger';
+        const checklistEntries = Object.entries(item.checklist || {});
+
+        if (checklistEntries.length === 0) {
+            // Si no hay checklist, pinta una fila base
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.lastInspection}</td>
+                <td class="fw-bold text-success">${item.id}</td>
+                <td>${item.location}</td>
+                <td>${item.type}</td>
+                <td>${item.sub}</td>
+                <td>${item.capacity}</td>
+                <td>${item.height}</td>
+                <td>${item.vencAno || ''}</td>
+                <td>${item.vencMes || ''}</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>Sin registros</td>
+                <td><span class="badge ${badgeClass}">${item.status}</span></td>
+                <td>${item.expiryDate || ''}</td>
+                <td>${item.inspector}</td>
+                <td><span class="badge bg-secondary">0</span></td>
+                <td>N/A</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-primary mb-1" onclick="viewDetail('${item.id}')"><i class="fa-solid fa-eye"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        } else {
+            // Pinta una fila por cada elemento del checklist de este extintor
+            checklistEntries.forEach(([elemento, detalle], idx) => {
                 const tr = document.createElement('tr');
+                const resColor = detalle.result === 'Cumple' ? 'text-success' : 'text-danger';
+                
                 tr.innerHTML = `
-                    <td>${item.lastInspection}</td>
-                    <td class="fw-bold text-success">${item.id}</td>
-                    <td>${item.location}</td>
-                    <td>${item.type} (${item.capacity})</td>
-                    <td><span class="badge ${badgeClass}">${item.status}</span></td>
-                    <td>${item.inspector}</td>
-                    <td><span class="badge bg-secondary">${(item.photos || []).length} Fotos</span></td>
+                    <td>${idx === 0 ? item.lastInspection : ''}</td>
+                    <td class="fw-bold text-success">${idx === 0 ? item.id : ''}</td>
+                    <td>${idx === 0 ? item.location : ''}</td>
+                    <td>${idx === 0 ? item.type : ''}</td>
+                    <td>${idx === 0 ? item.sub : ''}</td>
+                    <td>${idx === 0 ? item.capacity : ''}</td>
+                    <td>${idx === 0 ? item.height : ''}</td>
+                    <td>${idx === 0 ? (item.vencAno || '') : ''}</td>
+                    <td>${idx === 0 ? (item.vencMes || '') : ''}</td>
+                    <td class="fw-bold">${elemento}</td>
+                    <td><span class="${resColor} fw-bold">${detalle.result}</span></td>
+                    <td>${detalle.obs}</td>
+                    <td>${idx === 0 ? `<span class="badge ${badgeClass}">${item.status}</span>` : ''}</td>
+                    <td>${idx === 0 ? (item.expiryDate || '') : ''}</td>
+                    <td>${idx === 0 ? item.inspector : ''}</td>
+                    <td>${idx === 0 ? `<span class="badge bg-secondary">${(item.photos || []).length}</span>` : ''}</td>
+                    <td>${idx === 0 ? (item.signature ? 'Sí' : 'No') : ''}</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-outline-primary mb-1" onclick="viewDetail('${item.id}')">
-                            <i class="fa-solid fa-eye"></i> Ver
-                        </button>
-                        <button class="btn btn-sm btn-danger mb-1" onclick="printPDF('${item.id}')">
-                            <i class="fa-solid fa-file-pdf"></i> Guardar PDF
-                        </button>
+                        ${idx === 0 ? `
+                            <button class="btn btn-sm btn-outline-primary mb-1" onclick="viewDetail('${item.id}')"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn btn-sm btn-danger mb-1" onclick="printPDF('${item.id}')"><i class="fa-solid fa-file-pdf"></i></button>
+                        ` : ''}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
+    });
+}
 
         function viewDetail(id) {
             const item = inspections.find(i => i.id === id);
